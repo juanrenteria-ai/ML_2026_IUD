@@ -5,16 +5,16 @@ Columnas: 10
 Duplicados: 0
 
 Columnas y tipos:
-- address: str
-- city: str
-- country: str
-- keys: str
+- address: object
+- city: object
+- country: object
+- keys: object
 - latitude: float64
 - longitude: float64
-- name: str
-- postalCode: str
-- province: str
-- websites: str
+- name: object
+- postalCode: object
+- province: object
+- websites: object
 
 Valores nulos por columna:
 - address: 0
