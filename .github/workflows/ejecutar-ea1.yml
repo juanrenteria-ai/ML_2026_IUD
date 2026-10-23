@@ -67,5 +67,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore: actualizar resultados de Semana 1 [skip ci]"
+          git commit -m "chore: actualizar resultados [skip ci]"
           git push origin HEAD:main
