@@ -2,42 +2,6 @@
 
 Repositorio de referencia: un notebook ejecutable por clase que deja un resumen `.txt` en `reportes/`.
 
-## Estructura
-
-```
-src/rp_utils/            Clases reutilizables
-  reporting.py           ClassReport: genera el resumen .txt de cada notebook
-  hf_loader.py           HFDatasetLoader: conexión automática a Hugging Face y exportación
-  summarizer.py          DatasetSummarizer: resumen de un DataFrame
-sincronicas/             8 notebooks: teoría + demostración por clase
-triplea/                 8 notebooks: práctica con ejercicios por clase
-Actividades_Evaluativas/ 4 notebooks con la solución de referencia
-reportes/                Resúmenes .txt generados (uno por notebook)
-scripts/build_notebooks.py  Regenera todos los notebooks
-```
-
-## Temario (propuesto, ajustable en `scripts/build_notebooks.py`)
-
-| Clase | Tema | Unidad |
-|---|---|---|
-| 1 | Introducción a Python y entorno de análisis | 1 |
-| 2 | NumPy y computación vectorizada | 1 |
-| 3 | pandas: carga y exploración | 1 |
-| 4 | Limpieza y transformación | 2 |
-| 5 | Visualización | 2 |
-| 6 | Estadística descriptiva e inferencial | 2 |
-| 7 | Ingeniería de características | 3 |
-| 8 | Modelado básico y evaluación | 3 |
-
-## Actividades evaluativas
-
-1. Conexión automática a Hugging Face con `HFDatasetLoader` y resumen con `DatasetSummarizer`, orquestado desde el notebook.
-2. Unidad 1: exploración con Python, NumPy y pandas.
-3. Unidad 2: limpieza, visualización y estadística.
-4. Unidad 3: ingeniería de características y modelado.
-
-El dataset se cambia editando `DATASET`, `CONFIG`, `SPLIT` y `TARGET` en la primera celda de cada actividad.
-
 ## Uso
 
 ```bash
