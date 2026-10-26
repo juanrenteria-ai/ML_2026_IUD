@@ -38,6 +38,7 @@ jobs:
           .venv/bin/python -m pip install --upgrade pip
           .venv/bin/python -m pip install -r requirements.txt
           .venv/bin/python -m pip install pyarrow openpyxl
+          .venv/bin/python -m ipykernel install --user --name python3 --display-name "Python 3"
 
       - name: Limpiar datos y reportes generados
         run: |
@@ -54,6 +55,7 @@ jobs:
             --execute \
             --inplace \
             --ExecutePreprocessor.timeout=1800 \
+            --ExecutePreprocessor.kernel_name=python3 \
             Semana_1SINC.ipynb
 
       - name: Confirmar cambios generados
