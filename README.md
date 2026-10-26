@@ -1,11 +1,55 @@
-# ML_2026_IUD
+# EA2 - Regresión lineal y clasificación (Horse Race)
+
+Analisis aplicado medio de Machine Learning - Institución Universitaria
+Digital de Antioquia. Esta entrega contiene el código y los recursos
+reproducibles de la actividad AE2: «Modelos de Predicción y Clasificación».
+
+## Propósito y necesidad
+
+Construir y comparar dos modelos de aprendizaje automático sobre el dataset de carreras de caballos mayacheruty/Horse-Race-Prediction-EDA de Hugging Face, de forma totalmente automática y reproducible:
+
+   * Regresión lineal: estima el rating de desempeño de un caballo en una carrera (RPR, variable numérica).
+   * Clasificación (regresión logística): predice si un caballo gana la carrera (res_win, clase binaria con solo un 10 % de positivos).
+
+El trabajo responde a tres necesidades:
+
+   1. Datos confiables. El dataset publicado trae casi la mitad de los ratings OR y un 11 % de los RPR rellenados con la media. Detectarlos y revertirlos, evitar variables que revelan el resultado de la carrera y dividir por carrera sin mezclar caballos entre entrenamiento y prueba evita métricas infladas.
+   2. Evaluación honesta con clases desbalanceadas. Con un 10 % de ganadores, la exactitud engaña: responder siempre “no ganó” acierta el 90 %. Por eso el clasificador se evalúa con precisión, recall, F1, PR-AUC y matriz de confusión.
+   3. Trazabilidad. Cada ejecución deja un reporte generado por código, con dataset, preprocesamiento, parámetros, métricas, interpretación y limitaciones, y un historial de commits automáticos que documenta los resultados de cada versión.
+
+El flujo descarga los datos, los preprocesa, entrena y evalúa cada modelo, interpreta los resultados y genera un resumen .txt con ambos modelos. Todo se ejecuta sin cargar archivos a mano y se repite en GitHub Actions con cada cambio.
+
+**Orientación del dataset:** 
+
+Presenta un análisis exploratorio de datos (EDA) exhaustivo de un conjunto de datos sobre carreras de caballos de 2019 que contiene más de 171.849 registros. El objetivo era identificar los principales factores biológicos, profesionales y de mercado que determinan un resultado ganador.
+
+## Integrantes
+
+- Juan Felipe Valencia Renteria
+- Diego Alejandro Barros Ballestas
+
+## Dataset
+
+- **Identificador:** `mayacheruty/Horse-Race-Prediction-EDA`
+- **Enlace:** <[(https://huggingface.co/datasets/mayacheruty/Horse-Race-Prediction-EDA)](https://huggingface.co/datasets/mayacheruty/Horse-Race-Prediction-EDA)>
+- **Split:** `train` (dataset completo; no es muestra)
+- **Licencia declarada en la ficha oficial de Hugging Face:** Apache 2.0 (`apache-2.0`), verificada el 2026-10-26.
+- **Datos sintéticos:** pendiente de verificar en la ficha; no se encontró una declaración explícita.
+- **Autenticación:** Se describe en la sección correspondiente a "EA1 - Carga y Creación de Dataset"
+
+El notebook descarga el dataset mediante `datasets` al ejecutarse y lo convierte
+a un DataFrame de pandas. No se versiona una copia CSV; Hugging Face conserva la
+caché local de la descarga. La licencia indicada corresponde a los metadatos de
+la [ficha oficial](https://huggingface.co/datasets/mayacheruty/Horse-Race-Prediction-EDA).
+
+# EA1 - Carga y Creación de Dataset
 
 Repositorio de referencia: un notebook ejecutable por clase que deja un resumen `.txt` en `reportes/`.
 
-## Uso
+## Comandos de Uso
 
 ```bash
-cd /workspaces/RP_AD2026Q4
+cd /workspaces/ML_2026_IUD
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
