@@ -1,0 +1,237 @@
+============================================================================================
+RESUMEN DE MODELOS - EA2
+============================================================================================
+
+Reporte generado el:            2026-10-26T09:22:29
+Regresión ejecutada el:         2026-10-26T09:12:48
+Clasificación ejecutada el:     2026-10-26T09:19:49
+
+--------------------------------------------------------------------------------------------
+1. DATASET
+--------------------------------------------------------------------------------------------
+Dataset:            mayacheruty/Horse-Race-Prediction-EDA
+Origen:             Hugging Face (descarga automática al ejecutar)
+Split:              train
+Filas originales:   171849
+Columnas:           24
+Contenido:          una fila por caballo en una carrera (edad, peso, cuota de
+                    mercado, ratings, resultado).
+
+--------------------------------------------------------------------------------------------
+2. PREPROCESAMIENTO
+--------------------------------------------------------------------------------------------
+Regresión (objetivo RPR)
+  1. eliminar_duplicados: duplicados eliminados: 0 (171849 -> 171849 filas)
+  2. restaurar_nulos_imputados: valores devueltos a NaN: OR=69860, RPR=18651 (171849 ->
+     171849 filas)
+  3. seleccionar_columnas: 7 de 24 columnas conservadas (171849 -> 171849 filas)
+  4. descartar_filas_con_nulos: nulos por columna: OR=69860, RPR=18651 (171849 -> 94740
+     filas)
+  5. dividir_por_carrera: entrenamiento=75979, prueba=18761, carreras compartidas=0 (94740
+     -> 94740 filas)
+  6. escalar: StandardScaler ajustado solo con entrenamiento (75979 -> 75979 filas)
+  Filas usadas: 94740 de 171849 (55.1 %).
+
+Clasificación (objetivo res_win)
+  1. eliminar_duplicados: duplicados eliminados: 0 (171849 -> 171849 filas)
+  2. seleccionar_columnas: 6 de 24 columnas conservadas (171849 -> 171849 filas)
+  3. descartar_filas_con_nulos: nulos por columna: ninguno (171849 -> 171849 filas)
+  4. convertir_objetivo: 'res_win' convertido a entero (clases [0, 1]) (171849 -> 171849
+     filas)
+  5. dividir_por_carrera: entrenamiento=137325, prueba=34524, carreras compartidas=0 (171849
+     -> 171849 filas)
+  6. escalar: StandardScaler ajustado solo con entrenamiento (137325 -> 137325 filas)
+  Filas usadas: 171849 de 171849 (100.0 %).
+
+
+--------------------------------------------------------------------------------------------
+3. MODELO DE REGRESIÓN LINEAL
+--------------------------------------------------------------------------------------------
+Objetivo:      RPR (numérico): rating de desempeño del caballo en la carrera.
+Variables:     OR, age, weight, decimalPrice, runners
+Algoritmo:     Regresión lineal múltiple (LinearRegression, mínimos cuadrados ordinarios)
+Hiperparámetros: copy_X=True, fit_intercept=True, n_jobs=None, positive=False, tol=1e-06
+Configuración:   por carrera (GroupShuffleSplit); 75979 filas de entrenamiento (9580
+                 carreras) y 18761 de prueba (2395 carreras); semilla 42; StandardScaler
+                 ajustado solo con entrenamiento.
+
+Coeficientes (ordenados por peso relativo):
+  variable      coef. estandarizado  coef. unidad original  peso %
+  ------------  -------------------  ---------------------  ------
+  OR            +24.4196             +0.9452                78.8
+  decimalPrice  +4.5377              +40.1373               14.6
+  weight        -0.8180              -0.1243                2.6
+  runners       -0.6689              -0.1702                2.2
+  age           +0.5320              +0.2426                1.7
+Intercepto (unidades originales): -0.3311
+
+Métricas:
+  métrica  entrenamiento  prueba  baseline (la media)
+  -------  -------------  ------  -------------------
+  R2       0.735          0.740   0.000
+  MAE      11.473         11.328  23.752
+  RMSE     15.336         15.112  29.625
+
+Interpretación:
+  - Ajuste: el modelo explica el 74.0 % de la variación de RPR en carreras que no vio al
+    entrenar (R² = 0.740, nivel alto). Un modelo que siempre predice la media obtiene R² =
+    0.000.
+  - Error: el MAE es 11.33 puntos de RPR, un 52 % menor que el del modelo de la media
+    (23.75). El RMSE (15.11) es mayor que el MAE porque penaliza más los errores grandes.
+  - Generalización: R² de 0.735 en entrenamiento y 0.740 en prueba (diferencia -0.005); no
+    se observa sobreajuste.
+  - Coeficientes: OR concentra el 79 % del peso relativo del modelo. Por cada punto
+    adicional de OR, RPR cambia +0.945 puntos, con las demás variables constantes.
+  - Efecto de las demás variables: decimalPrice (+4.54 puntos por desviación estándar);
+    weight (-0.82 puntos por desviación estándar); runners (-0.67 puntos por desviación
+    estándar); age (+0.53 puntos por desviación estándar).
+  - Variables con efecto pequeño (menos de 1 punto por desviación estándar): weight,
+    runners, age. Los signos describen asociación, no causalidad.
+  - Signo contrario: weight tiene correlación +0.61 con RPR pero coeficiente -0.82. Una vez
+    descontado el efecto de las demás variables su aporte cambia de dirección; no debe
+    leerse de forma aislada.
+  - Multicolinealidad: el VIF máximo es 2.41 (weight); es bajo, así que los coeficientes son
+    estables.
+  - Residuos: media +0.24 (sin sesgo sistemático) y desviación 15.11.
+  - Los residuos tienen asimetría -1.37: hay casos con RPR real mucho menor que el predicho,
+    que el modelo tiende a sobreestimar.
+  - Las colas son pesadas (curtosis en exceso 3.4): el 4.9 % de los residuos supera dos
+    desviaciones, más de lo que daría una distribución normal.
+  - Tendencia hacia la media: en el 10 % de casos con RPR real más bajo (hasta 37) el
+    residuo medio es -21.7, y en el 10 % más alto (desde 114) es +9.3. Un residuo negativo
+    significa que el modelo sobreestima; uno positivo, que subestima.
+  - La dispersión del error crece con el valor predicho: de 13.3 (cuartil bajo) a 17.1
+    (cuartil alto). El modelo es menos preciso para los valores altos.
+
+Limitaciones:
+  - RPR es un rating posterior a la carrera: el modelo estima el desempeño a partir de datos
+    previos, pero no pronostica quién ganará una carrera.
+  - Se descartaron 77109 de 171849 filas (44.9 %) por tener ratings imputados con la media.
+    Los resultados describen a los caballos con ratings registrados y pueden no
+    generalizarse al resto.
+  - Casi todo el poder predictivo viene de OR: por sí sola alcanza R² = 0.718, y las demás
+    variables aportan +0.022.
+  - El modelo supone una relación lineal y no captura interacciones. Los caballos de una
+    misma carrera no son independientes; se evitó mezclarlos entre entrenamiento y prueba,
+    pero no se calcularon intervalos de confianza ni valores p.
+  - La regresión lineal no está acotada: 7 predicciones quedaron fuera del rango observado
+    en entrenamiento [1, 181].
+
+--------------------------------------------------------------------------------------------
+4. MODELO DE CLASIFICACIÓN
+--------------------------------------------------------------------------------------------
+Objetivo:      res_win (binario): 1 = el caballo ganó la carrera, 0 = no ganó.
+Clases:        No ganó = 154589 (89.96 %), Ganó = 17260 (10.04 %)
+Variables:     decimalPrice, age, weight, runners
+Algoritmo:     Regresión logística (LogisticRegression) con class_weight='balanced'
+Hiperparámetros: C=1.0, class_weight=balanced, dual=False, fit_intercept=True,
+                 intercept_scaling=1, l1_ratio=0.0, max_iter=1000, n_jobs=None,
+                 penalty=deprecated, random_state=42, solver=lbfgs, tol=0.0001, verbose=0,
+                 warm_start=False
+Configuración:   por carrera (GroupShuffleSplit); 137325 filas de entrenamiento (13786
+                 carreras) y 34524 de prueba (3447 carreras); semilla 42; umbral 0.5;
+                 StandardScaler ajustado solo con entrenamiento.
+
+Comparación de algoritmos (validación cruzada por carrera, solo entrenamiento):
+  algoritmo                                  precisión  recall  F1     ROC-AUC  PR-AUC
+  -----------------------------------------  ---------  ------  -----  -------  ------
+  Siempre la clase mayoritaria (referencia)  0.000      0.000   0.000  0.500    0.101
+  Regresión logística                        0.251      0.627   0.358  0.794    0.338
+  Gradient boosting (HistGradientBoosting)   0.213      0.750   0.332  0.795    0.333
+  Bosque aleatorio                           0.221      0.707   0.337  0.792    0.332
+
+Coeficientes (ordenados por peso relativo):
+  variable      coef. estandarizado  odds ratio / desv.  peso %
+  ------------  -------------------  ------------------  ------
+  decimalPrice  +1.0251              2.787               93.3
+  runners       -0.0533              0.948               4.9
+  weight        -0.0131              0.987               1.2
+  age           +0.0076              1.008               0.7
+
+Métricas:
+  métrica                        entrenamiento  prueba
+  -----------------------------  -------------  ------
+  exactitud                      0.774          0.775
+  exactitud (siempre 'No ganó')  0.899          0.900
+  exactitud balanceada           0.709          0.705
+  precisión                      0.251          0.249
+  recall                         0.627          0.617
+  F1                             0.358          0.354
+  ROC-AUC                        0.794          0.792
+  PR-AUC                         0.337          0.332
+
+Matriz de confusión (prueba; filas = real, columnas = predicho):
+                pred. No ganó  pred. Ganó
+  ------------  -------------  ----------
+  real No ganó  24631          6440
+  real Ganó     1323           2130
+
+Interpretación:
+  - Desbalance: solo el 10.0 % de las filas de prueba son 'ganó' (res_win = 1). Un modelo
+    que siempre responde 'no' tendría exactitud 90.0 % sin detectar ningún caso, por eso la
+    exactitud (77.5 %) no es la métrica principal: aquí es menor que esa referencia porque
+    el modelo prefiere señalar más positivos para no dejar escapar los reales.
+  - Matriz de confusión: de 3453 casos positivos reales el modelo acertó 2130 (recall 61.7
+    %) y dejó pasar 1323; de 8570 casos que marcó como positivos, 2130 lo eran (precisión
+    24.9 %) y 6440 no.
+  - F1 = 0.354 (balance entre precisión y recall) y exactitud balanceada 0.705 (promedio del
+    acierto en cada clase; 0,5 equivale a azar).
+  - Capacidad de ordenar: ROC-AUC 0.792 (0,5 es azar, 1 es perfecto) y PR-AUC 0.332 frente a
+    0.100 que obtendría el azar; la señal existe pero es moderada.
+  - Por carrera: el caballo con mayor probabilidad estimada ganó en 33.7 % de las 3447
+    carreras de prueba; elegir al azar daría 11.6 %.
+  - Coeficientes: decimalPrice concentra el 93 % del peso relativo. Por cada desviación
+    estándar adicional de decimalPrice, las odds de ganar se multiplican por 2.79 (aumenta
+    la probabilidad), con las demás variables constantes.
+  - Efecto de las demás variables: runners (x0.95 por desviación estándar); weight (x0.99
+    por desviación estándar); age (x1.01 por desviación estándar).
+  - Variables con efecto casi nulo (odds ratio entre 0,95 y 1,05): weight, age. Los signos
+    describen asociación, no causalidad.
+  - Generalización: F1 de 0.358 en entrenamiento y 0.354 en prueba (diferencia +0.004); no
+    se observa sobreajuste.
+  - Errores: 6440 falsos positivos (caballos señalados que no ganaron) frente a 1323 falsos
+    negativos (ganadores no detectados). Con el umbral 0.50 y el peso de clases balanceado
+    el modelo acepta más falsos positivos a cambio de un recall mayor; subir el umbral
+    invierte ese intercambio.
+  - Elección del algoritmo: en validación cruzada por carrera (solo entrenamiento) los
+    algoritmos comparados difieren como máximo 0.026 en F1 (mejor: Regresión logística,
+    0.358). Al ser una diferencia pequeña, se conserva la regresión logística por ser la más
+    simple e interpretable.
+
+Limitaciones:
+  - La precisión es baja (24.9 %): la mayoría de los caballos que el modelo señala como
+    ganadores no ganan. Sirve para priorizar, no para decidir.
+  - Solo hay 4 predictoras previas a la carrera (decimalPrice, age, weight, runners). Ganar
+    depende de factores que el dataset no contiene (estado del caballo, ritmo, terreno), y
+    probar otros algoritmos no mejoró el resultado, señal de que el límite está en la
+    información y no en el modelo.
+  - Una carrera tiene exactamente un ganador, pero el modelo puntúa a cada caballo por
+    separado y puede marcar varios (o ninguno) como ganadores de la misma carrera.
+  - Se excluyeron RPR y TR porque se calculan después de la carrera (revelarían el
+    resultado) y OR porque gran parte de sus valores están imputados con la media.
+  - El peso de clases balanceado mejora el recall a costa de la precisión; el umbral 0,5 no
+    se optimizó. Las probabilidades que entrega no están calibradas.
+
+--------------------------------------------------------------------------------------------
+5. CONCLUSIONES Y LIMITACIONES GENERALES
+--------------------------------------------------------------------------------------------
+  - Regresión (RPR): explica el 74.0 % de la variación con un error medio de 11.33 puntos
+    (baseline 23.75). Funciona bien porque OR ya contiene casi toda la información (R² =
+    0.718 por sí sola).
+  - Clasificación (res_win): ROC-AUC 0.792, recall 61.7 % y precisión 24.9 %. Hay señal,
+    pero es mucho más débil que en la regresión.
+  - Contraste: el mismo conjunto de datos permite estimar con buena precisión un rating de
+    desempeño y apenas ordenar quién ganará. Ganar es un evento raro (10.0 %) y depende de
+    factores ausentes en los datos; el rating, en cambio, está fuertemente ligado a otro
+    rating previo.
+  - Variables comunes: age, decimalPrice, runners, weight. La regresión usa además el rating
+    oficial (OR), que no puede entrar en la clasificación sin perder filas ni arriesgar fuga
+    de información.
+  - Ambos modelos describen asociaciones en datos históricos; ninguno debe usarse como base
+    única para decisiones de apuesta.
+
+Resumen de métricas principales (prueba):
+  modelo            métrica principal  referencia
+  ----------------  -----------------  ----------------------------
+  Regresión lineal  R2 = 0.740         MAE 11.33 vs 23.75 (media)
+  Clasificación     F1 = 0.354         PR-AUC 0.332 vs 0.100 (azar)

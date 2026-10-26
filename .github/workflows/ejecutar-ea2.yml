@@ -1,0 +1,106 @@
+name: Ejecutar EA2 - Regresión lineal y clasificación
+ 
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/sincronicas/EA2_HorseRace.ipynb"
+      - "src/sincronicas/EA2_Clasificacion.ipynb"
+      - "src/clases_po/**"
+      - "requirements.txt"
+      - ".github/workflows/ejecutar-ea2.yml"
+  workflow_dispatch:
+ 
+permissions:
+  contents: write
+ 
+concurrency:
+  group: ejecutar-ea2-main
+  cancel-in-progress: false
+ 
+jobs:
+  ejecutar-notebooks:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+ 
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+ 
+      - name: Crear entorno virtual
+        run: python -m venv .venv
+ 
+      - name: Instalar dependencias
+        run: |
+          source .venv/bin/activate
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -r requirements.txt
+          .venv/bin/python -m pip install pyarrow openpyxl
+ 
+      - name: Limpiar resultados anteriores
+        run: |
+          mkdir -p src/sincronicas/resultados
+          find src/sincronicas/resultados -mindepth 1 -delete
+ 
+      - name: Ejecutar EA2_HorseRace.ipynb (regresión lineal)
+        working-directory: src/sincronicas
+        run: |
+          source ../../.venv/bin/activate
+          jupyter nbconvert \
+            --to notebook \
+            --execute \
+            --inplace \
+            --ExecutePreprocessor.timeout=1800 \
+            EA2_HorseRace.ipynb
+ 
+      - name: Ejecutar EA2_Clasificacion.ipynb (clasificación y resumen .txt)
+        working-directory: src/sincronicas
+        run: |
+          source ../../.venv/bin/activate
+          jupyter nbconvert \
+            --to notebook \
+            --execute \
+            --inplace \
+            --ExecutePreprocessor.timeout=1800 \
+            EA2_Clasificacion.ipynb
+ 
+      - name: Verificar que se generó el resumen
+        run: |
+          ls -l src/sincronicas/resultados
+          test -n "$(find src/sincronicas/resultados -name 'resumen_modelos_*.txt')"
+ 
+      - name: Guardar modelos entrenados como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: modelos-ea2
+          path: |
+            src/sincronicas/entrenamiento/*_modelo.pkl
+            src/sincronicas/entrenamiento/*_preprocesador.pkl
+            src/sincronicas/entrenamiento/*_clasificador.pkl
+            src/sincronicas/entrenamiento/*_preprocesador_clasificacion.pkl
+          if-no-files-found: warn
+ 
+      - name: Confirmar resultados generados
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/sincronicas/resultados src/sincronicas/EA2_HorseRace.ipynb src/sincronicas/EA2_Clasificacion.ipynb
+ 
+          if git diff --cached --quiet; then
+            echo "No se generaron cambios."
+            exit 0
+          fi
+ 
+          git commit -m "chore: actualizar resultados EA2 [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
+ 
