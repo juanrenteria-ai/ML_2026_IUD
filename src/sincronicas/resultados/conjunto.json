@@ -1,0 +1,360 @@
+{
+  "fecha_ejecucion": "2026-10-26T08:51:23",
+  "regresion": {
+    "fecha_ejecucion": "2026-10-26T08:37:28",
+    "objetivo": "RPR",
+    "predictoras": [
+      "OR",
+      "age",
+      "weight",
+      "decimalPrice",
+      "runners"
+    ],
+    "algoritmo": "Regresión lineal múltiple (LinearRegression, mínimos cuadrados ordinarios)",
+    "hiperparametros": {
+      "copy_X": true,
+      "fit_intercept": true,
+      "n_jobs": null,
+      "positive": false,
+      "tol": 1e-06
+    },
+    "configuracion": {
+      "filas_entrenamiento": 75979,
+      "filas_prueba": 18761,
+      "carreras_entrenamiento": 9580,
+      "carreras_prueba": 2395,
+      "carreras_compartidas": 0,
+      "test_size": 0.2,
+      "random_state": 42,
+      "division": "por carrera (GroupShuffleSplit)",
+      "escalado": "StandardScaler ajustado solo con entrenamiento"
+    },
+    "ruta_modelo": "entrenamiento/20261026_083556_455330_modelo.pkl",
+    "intercepto_escalado": 73.00981850248095,
+    "intercepto_original": -0.33107124477861305,
+    "coeficientes": [
+      {
+        "variable": "OR",
+        "coef_estandarizado": 24.419601,
+        "desv_variable": 25.836632,
+        "coef_unidad_original": 0.945154,
+        "peso_relativo_pct": 78.833606
+      },
+      {
+        "variable": "decimalPrice",
+        "coef_estandarizado": 4.537669,
+        "desv_variable": 0.113054,
+        "coef_unidad_original": 40.137343,
+        "peso_relativo_pct": 14.64892
+      },
+      {
+        "variable": "weight",
+        "coef_estandarizado": -0.817959,
+        "desv_variable": 6.582215,
+        "coef_unidad_original": -0.124268,
+        "peso_relativo_pct": 2.640611
+      },
+      {
+        "variable": "runners",
+        "coef_estandarizado": -0.668903,
+        "desv_variable": 3.928961,
+        "coef_unidad_original": -0.170249,
+        "peso_relativo_pct": 2.159413
+      },
+      {
+        "variable": "age",
+        "coef_estandarizado": 0.532,
+        "desv_variable": 2.193203,
+        "coef_unidad_original": 0.242567,
+        "peso_relativo_pct": 1.717451
+      }
+    ],
+    "metricas_entrenamiento": {
+      "r2": 0.7346627935732515,
+      "mae": 11.472606822381428,
+      "rmse": 15.335740044056694
+    },
+    "metricas_prueba": {
+      "mae": 11.327540532008259,
+      "rmse": 15.111511362287803,
+      "r2": 0.7397908805331335
+    },
+    "metricas_baseline": {
+      "r2": -3.263068102765665e-05,
+      "mae": 23.752481428008192,
+      "rmse": 29.624684308229952
+    },
+    "vif": {
+      "OR": 2.1559,
+      "age": 1.3499,
+      "weight": 2.4081,
+      "decimalPrice": 1.2194,
+      "runners": 1.1566
+    },
+    "residuos": {
+      "objetivo_p10_entrenamiento": 37.0,
+      "objetivo_p90_entrenamiento": 114.0,
+      "residuo_medio_decil_bajo": -21.735245862208835,
+      "residuo_medio_decil_alto": 9.337171936282616,
+      "media": 0.2386416454847185,
+      "desviacion": 15.110029628402742,
+      "asimetria": -1.3720723975233566,
+      "curtosis_exceso": 3.4013754203599924,
+      "pct_fuera_2_desviaciones": 4.914450189222323,
+      "desv_por_cuartil": {
+        "Q1": 13.325630359583586,
+        "Q2": 13.721680295573478,
+        "Q3": 15.967179929461432,
+        "Q4": 17.085836815902958
+      },
+      "prediccion_min": -7.929906547876968,
+      "prediccion_max": 191.73464277625305,
+      "objetivo_min_entrenamiento": 1.0,
+      "objetivo_max_entrenamiento": 181.0,
+      "predicciones_fuera_de_rango": 7
+    },
+    "variable_principal": "OR",
+    "r2_variable_principal": 0.717815475451423,
+    "filas_originales": 171849,
+    "filas_usadas": 94740,
+    "interpretacion": [
+      "Ajuste: el modelo explica el 74.0 % de la variación de RPR en carreras que no vio al entrenar (R² = 0.740, nivel alto). Un modelo que siempre predice la media obtiene R² = 0.000.",
+      "Error: el MAE es 11.33 puntos de RPR, un 52 % menor que el del modelo de la media (23.75). El RMSE (15.11) es mayor que el MAE porque penaliza más los errores grandes.",
+      "Generalización: R² de 0.735 en entrenamiento y 0.740 en prueba (diferencia -0.005); no se observa sobreajuste.",
+      "Coeficientes: OR concentra el 79 % del peso relativo del modelo. Por cada punto adicional de OR, RPR cambia +0.945 puntos, con las demás variables constantes.",
+      "Efecto de las demás variables: decimalPrice (+4.54 puntos por desviación estándar); weight (-0.82 puntos por desviación estándar); runners (-0.67 puntos por desviación estándar); age (+0.53 puntos por desviación estándar).",
+      "Variables con efecto pequeño (menos de 1 punto por desviación estándar): weight, runners, age. Los signos describen asociación, no causalidad.",
+      "Signo contrario: weight tiene correlación +0.61 con RPR pero coeficiente -0.82. Una vez descontado el efecto de las demás variables su aporte cambia de dirección; no debe leerse de forma aislada.",
+      "Multicolinealidad: el VIF máximo es 2.41 (weight); es bajo, así que los coeficientes son estables.",
+      "Residuos: media +0.24 (sin sesgo sistemático) y desviación 15.11.",
+      "Los residuos tienen asimetría -1.37: hay casos con RPR real mucho menor que el predicho, que el modelo tiende a sobreestimar.",
+      "Las colas son pesadas (curtosis en exceso 3.4): el 4.9 % de los residuos supera dos desviaciones, más de lo que daría una distribución normal.",
+      "Tendencia hacia la media: en el 10 % de casos con RPR real más bajo (hasta 37) el residuo medio es -21.7, y en el 10 % más alto (desde 114) es +9.3. Un residuo negativo significa que el modelo sobreestima; uno positivo, que subestima.",
+      "La dispersión del error crece con el valor predicho: de 13.3 (cuartil bajo) a 17.1 (cuartil alto). El modelo es menos preciso para los valores altos."
+    ],
+    "limitaciones": [
+      "RPR es un rating posterior a la carrera: el modelo estima el desempeño a partir de datos previos, pero no pronostica quién ganará una carrera.",
+      "Se descartaron 77109 de 171849 filas (44.9 %) por tener ratings imputados con la media. Los resultados describen a los caballos con ratings registrados y pueden no generalizarse al resto.",
+      "Casi todo el poder predictivo viene de OR: por sí sola alcanza R² = 0.718, y las demás variables aportan +0.022.",
+      "El modelo supone una relación lineal y no captura interacciones. Los caballos de una misma carrera no son independientes; se evitó mezclarlos entre entrenamiento y prueba, pero no se calcularon intervalos de confianza ni valores p.",
+      "La regresión lineal no está acotada: 7 predicciones quedaron fuera del rango observado en entrenamiento [1, 181]."
+    ]
+  },
+  "clasificacion": {
+    "objetivo": "res_win",
+    "clases": {
+      "0": "No ganó",
+      "1": "Ganó"
+    },
+    "distribucion_clases": [
+      {
+        "valor": 0,
+        "clase": "No ganó",
+        "filas": 154589,
+        "porcentaje": 89.96
+      },
+      {
+        "valor": 1,
+        "clase": "Ganó",
+        "filas": 17260,
+        "porcentaje": 10.04
+      }
+    ],
+    "predictoras": [
+      "decimalPrice",
+      "age",
+      "weight",
+      "runners"
+    ],
+    "algoritmo": "Regresión logística (LogisticRegression) con class_weight='balanced'",
+    "hiperparametros": {
+      "C": "1.0",
+      "class_weight": "balanced",
+      "dual": "False",
+      "fit_intercept": "True",
+      "intercept_scaling": "1",
+      "l1_ratio": "0.0",
+      "max_iter": "1000",
+      "n_jobs": "None",
+      "penalty": "deprecated",
+      "random_state": "42",
+      "solver": "lbfgs",
+      "tol": "0.0001",
+      "verbose": "0",
+      "warm_start": "False"
+    },
+    "configuracion": {
+      "filas_entrenamiento": 137325,
+      "filas_prueba": 34524,
+      "carreras_entrenamiento": 13786,
+      "carreras_prueba": 3447,
+      "carreras_compartidas": 0,
+      "test_size": 0.2,
+      "random_state": 42,
+      "division": "por carrera (GroupShuffleSplit)",
+      "escalado": "StandardScaler ajustado solo con entrenamiento",
+      "umbral": 0.5
+    },
+    "ruta_modelo": "entrenamiento/20261026_084825_936325_clasificador.pkl",
+    "intercepto_original": -1.1325911512193798,
+    "coeficientes": [
+      {
+        "variable": "decimalPrice",
+        "coef_estandarizado": 1.02507,
+        "odds_ratio_por_desv": 2.787289,
+        "desv_variable": 0.118718,
+        "coef_unidad_original": 8.634481,
+        "peso_relativo_pct": 93.264307
+      },
+      {
+        "variable": "runners",
+        "coef_estandarizado": -0.053318,
+        "odds_ratio_por_desv": 0.948079,
+        "desv_variable": 3.941487,
+        "coef_unidad_original": -0.013527,
+        "peso_relativo_pct": 4.851014
+      },
+      {
+        "variable": "weight",
+        "coef_estandarizado": -0.01313,
+        "odds_ratio_por_desv": 0.986956,
+        "desv_variable": 6.608203,
+        "coef_unidad_original": -0.001987,
+        "peso_relativo_pct": 1.194617
+      },
+      {
+        "variable": "age",
+        "coef_estandarizado": 0.007584,
+        "odds_ratio_por_desv": 1.007613,
+        "desv_variable": 2.161063,
+        "coef_unidad_original": 0.00351,
+        "peso_relativo_pct": 0.690062
+      }
+    ],
+    "metricas_entrenamiento": {
+      "umbral": 0.5,
+      "filas": 137325,
+      "tasa_positiva": 0.10054250864736938,
+      "exactitud": 0.7738722009830694,
+      "exactitud_baseline": 0.8994574913526306,
+      "exactitud_balanceada": 0.7088060631477785,
+      "precision": 0.2505640728955742,
+      "recall": 0.627362931846165,
+      "f1": 0.35810405771337617,
+      "roc_auc": 0.7939449211759451,
+      "pr_auc": 0.3374296902123361,
+      "pr_auc_azar": 0.10054250864736938,
+      "matriz_confusion": [
+        [
+          97610,
+          25908
+        ],
+        [
+          5145,
+          8662
+        ]
+      ],
+      "tn": 97610,
+      "fp": 25908,
+      "fn": 5145,
+      "tp": 8662,
+      "carreras": 13786,
+      "aciertos_top1_pct": 34.56405048600029,
+      "aciertos_top1_azar_pct": 11.777429899603678
+    },
+    "metricas_prueba": {
+      "umbral": 0.5,
+      "filas": 34524,
+      "tasa_positiva": 0.10001737921445951,
+      "exactitud": 0.7751419302514193,
+      "exactitud_baseline": 0.8999826207855405,
+      "exactitud_balanceada": 0.7047938410502936,
+      "precision": 0.2485414235705951,
+      "recall": 0.6168549087749783,
+      "f1": 0.35432088497047326,
+      "roc_auc": 0.7915769049004968,
+      "pr_auc": 0.33159027469970176,
+      "pr_auc_azar": 0.10001737921445951,
+      "matriz_confusion": [
+        [
+          24631,
+          6440
+        ],
+        [
+          1323,
+          2130
+        ]
+      ],
+      "tn": 24631,
+      "fp": 6440,
+      "fn": 1323,
+      "tp": 2130,
+      "carreras": 3447,
+      "aciertos_top1_pct": 33.7394836089353,
+      "aciertos_top1_azar_pct": 11.643718051032598
+    },
+    "comparacion_algoritmos": [
+      {
+        "algoritmo": "Siempre la clase mayoritaria (referencia)",
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "roc_auc": 0.5,
+        "pr_auc": 0.100543
+      },
+      {
+        "algoritmo": "Regresión logística",
+        "precision": 0.250711,
+        "recall": 0.627216,
+        "f1": 0.358228,
+        "roc_auc": 0.793868,
+        "pr_auc": 0.337743
+      },
+      {
+        "algoritmo": "Gradient boosting (HistGradientBoosting)",
+        "precision": 0.213078,
+        "recall": 0.750123,
+        "f1": 0.331842,
+        "roc_auc": 0.794965,
+        "pr_auc": 0.333292
+      },
+      {
+        "algoritmo": "Bosque aleatorio",
+        "precision": 0.221464,
+        "recall": 0.706742,
+        "f1": 0.337246,
+        "roc_auc": 0.791953,
+        "pr_auc": 0.331834
+      }
+    ],
+    "filas_originales": 171849,
+    "filas_usadas": 171849,
+    "interpretacion": [
+      "Desbalance: solo el 10.0 % de las filas de prueba son 'ganó' (res_win = 1). Un modelo que siempre responde 'no' tendría exactitud 90.0 % sin detectar ningún caso, por eso la exactitud (77.5 %) no es la métrica principal: aquí es menor que esa referencia porque el modelo prefiere señalar más positivos para no dejar escapar los reales.",
+      "Matriz de confusión: de 3453 casos positivos reales el modelo acertó 2130 (recall 61.7 %) y dejó pasar 1323; de 8570 casos que marcó como positivos, 2130 lo eran (precisión 24.9 %) y 6440 no.",
+      "F1 = 0.354 (balance entre precisión y recall) y exactitud balanceada 0.705 (promedio del acierto en cada clase; 0,5 equivale a azar).",
+      "Capacidad de ordenar: ROC-AUC 0.792 (0,5 es azar, 1 es perfecto) y PR-AUC 0.332 frente a 0.100 que obtendría el azar; la señal existe pero es moderada.",
+      "Por carrera: el caballo con mayor probabilidad estimada ganó en 33.7 % de las 3447 carreras de prueba; elegir al azar daría 11.6 %.",
+      "Coeficientes: decimalPrice concentra el 93 % del peso relativo. Por cada desviación estándar adicional de decimalPrice, las odds de ganar se multiplican por 2.79 (aumenta la probabilidad), con las demás variables constantes.",
+      "Efecto de las demás variables: runners (x0.95 por desviación estándar); weight (x0.99 por desviación estándar); age (x1.01 por desviación estándar).",
+      "Variables con efecto casi nulo (odds ratio entre 0,95 y 1,05): weight, age. Los signos describen asociación, no causalidad.",
+      "Generalización: F1 de 0.358 en entrenamiento y 0.354 en prueba (diferencia +0.004); no se observa sobreajuste.",
+      "Errores: 6440 falsos positivos (caballos señalados que no ganaron) frente a 1323 falsos negativos (ganadores no detectados). Con el umbral 0.50 y el peso de clases balanceado el modelo acepta más falsos positivos a cambio de un recall mayor; subir el umbral invierte ese intercambio.",
+      "Elección del algoritmo: en validación cruzada por carrera (solo entrenamiento) los algoritmos comparados difieren como máximo 0.026 en F1 (mejor: Regresión logística, 0.358). Al ser una diferencia pequeña, se conserva la regresión logística por ser la más simple e interpretable."
+    ],
+    "limitaciones": [
+      "La precisión es baja (24.9 %): la mayoría de los caballos que el modelo señala como ganadores no ganan. Sirve para priorizar, no para decidir.",
+      "Solo hay 4 predictoras previas a la carrera (decimalPrice, age, weight, runners). Ganar depende de factores que el dataset no contiene (estado del caballo, ritmo, terreno), y probar otros algoritmos no mejoró el resultado, señal de que el límite está en la información y no en el modelo.",
+      "Una carrera tiene exactamente un ganador, pero el modelo puntúa a cada caballo por separado y puede marcar varios (o ninguno) como ganadores de la misma carrera.",
+      "Se excluyeron RPR y TR porque se calculan después de la carrera (revelarían el resultado) y OR porque gran parte de sus valores están imputados con la media.",
+      "El peso de clases balanceado mejora el recall a costa de la precisión; el umbral 0,5 no se optimizó. Las probabilidades que entrega no están calibradas."
+    ]
+  },
+  "conclusiones": [
+    "Regresión (RPR): explica el 74.0 % de la variación con un error medio de 11.33 puntos (baseline 23.75). Funciona bien porque OR ya contiene casi toda la información (R² = 0.718 por sí sola).",
+    "Clasificación (res_win): ROC-AUC 0.792, recall 61.7 % y precisión 24.9 %. Hay señal, pero es mucho más débil que en la regresión.",
+    "Contraste: el mismo conjunto de datos permite estimar con buena precisión un rating de desempeño y apenas ordenar quién ganará. Ganar es un evento raro (10.0 %) y depende de factores ausentes en los datos; el rating, en cambio, está fuertemente ligado a otro rating previo.",
+    "Variables comunes: age, decimalPrice, runners, weight. La regresión usa además el rating oficial (OR), que no puede entrar en la clasificación sin perder filas ni arriesgar fuga de información.",
+    "Ambos modelos describen asociaciones en datos históricos; ninguno debe usarse como base única para decisiones de apuesta."
+  ]
+}

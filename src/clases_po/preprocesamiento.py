@@ -34,6 +34,8 @@ class PreprocesamientoCarreras:
  
     COLUMNAS_RATING = ("OR", "RPR")
     COLUMNAS_RESULTADO = ("position", "positionL", "dist", "margin", "res_win", "res_place")
+    # Ratings que se calculan después de la carrera: no pueden predecir su resultado.
+    COLUMNAS_POSTERIORES = ("RPR", "TR")
  
     def __init__(
         self,
@@ -210,6 +212,98 @@ class PreprocesamientoCarreras:
             f"{len(seleccion)} filas de {len(df)}; {grupos.nunique()} carreras."
         )
         return X, y, grupos
+ 
+    def preparar_clasificacion(
+        self,
+        df: pd.DataFrame,
+        objetivo: str = "res_win",
+        predictoras: list[str] | tuple[str, ...] = ("decimalPrice", "age", "weight", "runners"),
+    ) -> tuple[pd.DataFrame, pd.Series, pd.Series]:
+        """Construye ``X``, ``y`` y los grupos (carreras) para el clasificador.
+ 
+        A diferencia de la regresión, aquí no se usan ``OR`` ni ``RPR``, de modo
+        que no hace falta descartar las filas con ratings imputados y se
+        conserva todo el dataset. El objetivo ya es binario (1 = ganó), por lo
+        que no se construye a partir de ninguna variable numérica.
+ 
+        Raises:
+            KeyError: Si falta alguna columna.
+            ValueError: Si una predictora revela el resultado de la carrera
+                (columnas de resultado o ratings posteriores) o si el objetivo
+                no es binario.
+        """
+        if not isinstance(df, pd.DataFrame):
+            raise TypeError("df debe ser un pandas.DataFrame.")
+        predictoras = list(predictoras)
+        if objetivo in predictoras:
+            raise ValueError("El objetivo no puede estar entre las predictoras.")
+        fuga = sorted(set(predictoras) & (set(self.COLUMNAS_RESULTADO) | set(self.COLUMNAS_POSTERIORES)))
+        if fuga:
+            raise ValueError(
+                f"Estas predictoras revelan el resultado de la carrera o se calculan "
+                f"después de ella: {fuga}."
+            )
+        self._validar_columnas(df, predictoras + [objetivo, self.columna_grupo])
+ 
+        self.bitacora = []
+        datos = self.eliminar_duplicados(df)
+        columnas = predictoras + [objetivo, self.columna_grupo]
+        seleccion = datos[columnas].copy()
+        self._registrar(
+            "seleccionar_columnas",
+            "Quitar identificadores, texto de alta cardinalidad, ratings y columnas de resultado",
+            len(seleccion),
+            len(seleccion),
+            f"{len(columnas)} de {len(datos.columns)} columnas conservadas",
+        )
+ 
+        numericas = predictoras + [objetivo]
+        seleccion[numericas] = seleccion[numericas].apply(pd.to_numeric, errors="coerce")
+        seleccion[numericas] = seleccion[numericas].where(np.isfinite(seleccion[numericas]), np.nan)
+        antes = len(seleccion)
+        nulos_por_columna = seleccion[numericas].isna().sum()
+        seleccion = seleccion.dropna(subset=numericas).reset_index(drop=True)
+        detalle = ", ".join(f"{c}={int(n)}" for c, n in nulos_por_columna.items() if n > 0)
+        self._registrar(
+            "descartar_filas_con_nulos",
+            "Los modelos no admiten nulos y el objetivo no debe imputarse",
+            antes,
+            len(seleccion),
+            "nulos por columna: " + (detalle or "ninguno"),
+        )
+ 
+        valores = set(seleccion[objetivo].unique())
+        if not valores <= {0, 1} or len(valores) < 2:
+            raise ValueError(f"El objetivo debe ser binario (0 y 1); contiene {sorted(float(v) for v in valores)}.")
+        seleccion[objetivo] = seleccion[objetivo].astype(int)
+        self._registrar(
+            "convertir_objetivo",
+            "El objetivo llega como número decimal (0.0 / 1.0); el clasificador necesita enteros",
+            len(seleccion),
+            len(seleccion),
+            f"'{objetivo}' convertido a entero (clases {sorted(int(v) for v in valores)})",
+        )
+ 
+        self.objetivo = objetivo
+        self.columnas_predictoras = predictoras
+        X = seleccion[predictoras]
+        y = seleccion[objetivo]
+        grupos = seleccion[self.columna_grupo]
+        print(
+            f"[preparar_clasificacion] X={predictoras}; y='{objetivo}'; "
+            f"{len(seleccion)} filas de {len(df)}; {grupos.nunique()} carreras."
+        )
+        return X, y, grupos
+ 
+    @staticmethod
+    def distribucion_clases(y: pd.Series, nombres: dict[int, str] | None = None) -> pd.DataFrame:
+        """Cuenta las filas de cada clase y su porcentaje."""
+        conteo = y.value_counts().sort_index()
+        tabla = pd.DataFrame({"filas": conteo, "porcentaje": (conteo / conteo.sum() * 100).round(2)})
+        if nombres:
+            tabla.insert(0, "clase", [nombres.get(int(i), str(i)) for i in tabla.index])
+        tabla.index.name = "valor"
+        return tabla
  
     # ------------------------------------------------------------------ #
     # División y escalado

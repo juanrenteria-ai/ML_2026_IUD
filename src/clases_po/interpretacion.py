@@ -307,3 +307,157 @@ class InterpretacionModelos:
             )
         return limitaciones
  
+    # ------------------------------------------------------------------ #
+    # Clasificación: textos
+    # ------------------------------------------------------------------ #
+    @staticmethod
+    def interpretar_clasificacion(
+        objetivo: str,
+        metricas_train: dict[str, Any],
+        metricas_test: dict[str, Any],
+        coeficientes: pd.DataFrame,
+        comparacion: pd.DataFrame | None = None,
+        nombre_positiva: str = "ganó",
+    ) -> list[str]:
+        """Redacta la interpretación del clasificador con los valores medidos."""
+        m = metricas_test
+        tp, fp, fn, tn = m["tp"], m["fp"], m["fn"], m["tn"]
+        positivos = tp + fn
+        predichos = tp + fp
+        lineas = [
+            f"Desbalance: solo el {m['tasa_positiva'] * 100:.1f} % de las filas de prueba son "
+            f"'{nombre_positiva}' ({objetivo} = 1). Un modelo que siempre responde 'no' tendría "
+            f"exactitud {m['exactitud_baseline'] * 100:.1f} % sin detectar ningún caso, por eso la "
+            f"exactitud ({m['exactitud'] * 100:.1f} %) no es la métrica principal: aquí es "
+            f"{'menor' if m['exactitud'] < m['exactitud_baseline'] else 'mayor'} que esa referencia "
+            f"porque el modelo prefiere señalar más positivos para no dejar escapar los reales.",
+            f"Matriz de confusión: de {positivos} casos positivos reales el modelo acertó {tp} "
+            f"(recall {m['recall'] * 100:.1f} %) y dejó pasar {fn}; de {predichos} casos que marcó como "
+            f"positivos, {tp} lo eran (precisión {m['precision'] * 100:.1f} %) y {fp} no.",
+            f"F1 = {m['f1']:.3f} (balance entre precisión y recall) y exactitud balanceada "
+            f"{m['exactitud_balanceada']:.3f} (promedio del acierto en cada clase; 0,5 equivale a azar).",
+            f"Capacidad de ordenar: ROC-AUC {m['roc_auc']:.3f} (0,5 es azar, 1 es perfecto) y "
+            f"PR-AUC {m['pr_auc']:.3f} frente a {m['pr_auc_azar']:.3f} que obtendría el azar; "
+            f"la señal existe pero es moderada.",
+        ]
+        if "aciertos_top1_pct" in m:
+            lineas.append(
+                f"Por carrera: el caballo con mayor probabilidad estimada ganó en "
+                f"{m['aciertos_top1_pct']:.1f} % de las {m['carreras']} carreras de prueba; "
+                f"elegir al azar daría {m['aciertos_top1_azar_pct']:.1f} %."
+            )
+ 
+        principal = coeficientes.index[0]
+        fila = coeficientes.iloc[0]
+        sentido = "aumenta" if fila["coef_estandarizado"] > 0 else "reduce"
+        lineas.append(
+            f"Coeficientes: {principal} concentra el {fila['peso_relativo_pct']:.0f} % del peso "
+            f"relativo. Por cada desviación estándar adicional de {principal}, las odds de "
+            f"ganar se multiplican por {fila['odds_ratio_por_desv']:.2f} "
+            f"({sentido} la probabilidad), con las demás variables constantes."
+        )
+        otras = [
+            f"{n} (x{f['odds_ratio_por_desv']:.2f} por desviación estándar)"
+            for n, f in coeficientes.iloc[1:].iterrows()
+        ]
+        if otras:
+            lineas.append("Efecto de las demás variables: " + "; ".join(otras) + ".")
+        debiles = coeficientes.index[(coeficientes["odds_ratio_por_desv"] - 1).abs() < 0.05].tolist()
+        if debiles:
+            lineas.append(
+                "Variables con efecto casi nulo (odds ratio entre 0,95 y 1,05): "
+                + ", ".join(debiles)
+                + ". Los signos describen asociación, no causalidad."
+            )
+ 
+        diferencia = metricas_train["f1"] - m["f1"]
+        lineas.append(
+            f"Generalización: F1 de {metricas_train['f1']:.3f} en entrenamiento y {m['f1']:.3f} en "
+            f"prueba (diferencia {diferencia:+.3f}); "
+            + ("hay señales de sobreajuste." if diferencia > 0.05 else "no se observa sobreajuste.")
+        )
+ 
+        lineas.append(
+            f"Errores: {fp} falsos positivos (caballos señalados que no ganaron) frente a {fn} "
+            f"falsos negativos (ganadores no detectados). Con el umbral {m['umbral']:.2f} y el "
+            f"peso de clases balanceado el modelo acepta más falsos positivos a cambio de un "
+            f"recall mayor; subir el umbral invierte ese intercambio."
+        )
+ 
+        if comparacion is not None and len(comparacion) > 1:
+            modelos = comparacion.drop(index=comparacion.index[0], errors="ignore")
+            mejor = modelos["f1"].idxmax()
+            dispersion = float(modelos["f1"].max() - modelos["f1"].min())
+            lineas.append(
+                f"Elección del algoritmo: en validación cruzada por carrera (solo entrenamiento) "
+                f"los algoritmos comparados difieren como máximo {dispersion:.3f} en F1 "
+                f"(mejor: {mejor}, {modelos['f1'].max():.3f}). "
+                + (
+                    "Al ser una diferencia pequeña, se conserva la regresión logística por ser "
+                    "la más simple e interpretable."
+                    if dispersion < 0.03
+                    else "La diferencia es apreciable y conviene revisar la elección."
+                )
+            )
+        return lineas
+ 
+    @staticmethod
+    def limitaciones_clasificacion(
+        objetivo: str,
+        filas_originales: int,
+        filas_usadas: int,
+        metricas_test: dict[str, Any],
+        predictoras: list[str],
+    ) -> list[str]:
+        """Redacta las limitaciones del clasificador con los valores medidos."""
+        m = metricas_test
+        limitaciones = [
+            f"La precisión es baja ({m['precision'] * 100:.1f} %): la mayoría de los caballos que "
+            f"el modelo señala como ganadores no ganan. Sirve para priorizar, no para decidir.",
+            f"Solo hay {len(predictoras)} predictoras previas a la carrera ({', '.join(predictoras)}). "
+            f"Ganar depende de factores que el dataset no contiene (estado del caballo, ritmo, "
+            f"terreno), y probar otros algoritmos no mejoró el resultado, señal de que el límite "
+            f"está en la información y no en el modelo.",
+            "Una carrera tiene exactamente un ganador, pero el modelo puntúa a cada caballo por "
+            "separado y puede marcar varios (o ninguno) como ganadores de la misma carrera.",
+            "Se excluyeron RPR y TR porque se calculan después de la carrera (revelarían el resultado) "
+            "y OR porque gran parte de sus valores están imputados con la media.",
+            "El peso de clases balanceado mejora el recall a costa de la precisión; el umbral 0,5 "
+            "no se optimizó. Las probabilidades que entrega no están calibradas.",
+        ]
+        if filas_usadas < filas_originales:
+            descartadas = filas_originales - filas_usadas
+            limitaciones.append(
+                f"Se descartaron {descartadas} de {filas_originales} filas con valores faltantes "
+                f"en las variables del modelo."
+            )
+        return limitaciones
+ 
+    # ------------------------------------------------------------------ #
+    # Resultado conjunto
+    # ------------------------------------------------------------------ #
+    @staticmethod
+    def conclusion_conjunta(res_reg: dict[str, Any], res_clf: dict[str, Any]) -> list[str]:
+        """Redacta conclusiones que combinan los resultados de ambos modelos."""
+        mr = res_reg["metricas_prueba"]
+        mc = res_clf["metricas_prueba"]
+        base_mae = res_reg["metricas_baseline"]["mae"]
+        return [
+            f"Regresión ({res_reg['objetivo']}): explica el {mr['r2'] * 100:.1f} % de la variación "
+            f"con un error medio de {mr['mae']:.2f} puntos (baseline {base_mae:.2f}). Funciona bien "
+            f"porque {res_reg['variable_principal']} ya contiene casi toda la información "
+            f"(R² = {res_reg['r2_variable_principal']:.3f} por sí sola).",
+            f"Clasificación ({res_clf['objetivo']}): ROC-AUC {mc['roc_auc']:.3f}, recall "
+            f"{mc['recall'] * 100:.1f} % y precisión {mc['precision'] * 100:.1f} %. Hay señal, pero "
+            f"es mucho más débil que en la regresión.",
+            f"Contraste: el mismo conjunto de datos permite estimar con buena precisión un "
+            f"rating de desempeño y apenas ordenar quién ganará. Ganar es un evento raro "
+            f"({mc['tasa_positiva'] * 100:.1f} %) y depende de factores ausentes en los datos; el "
+            f"rating, en cambio, está fuertemente ligado a otro rating previo.",
+            f"Variables comunes: {', '.join(sorted(set(res_reg['predictoras']) & set(res_clf['predictoras'])))}. "
+            f"La regresión usa además el rating oficial (OR), que no puede entrar en la clasificación "
+            f"sin perder filas ni arriesgar fuga de información.",
+            "Ambos modelos describen asociaciones en datos históricos; ninguno debe usarse como "
+            "base única para decisiones de apuesta.",
+        ]
+ 

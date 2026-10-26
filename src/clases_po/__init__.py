@@ -3,5 +3,15 @@ from .reportes import Reportes
 from .regresion_lineal import RegresionLineal
 from .preprocesamiento import PreprocesamientoCarreras
 from .interpretacion import InterpretacionModelos
+from .resultados import AlmacenResultados
+from .clasificacion import ClasificadorBinario
 
-__all__ = ["HFDatasetLoader", "Reportes", "PreprocesamientoCarreras", "RegresionLineal","InterpretacionModelos"]
+__all__ = [
+    "HFDatasetLoader",
+    "Reportes",
+    "PreprocesamientoCarreras",
+    "RegresionLineal",
+    "InterpretacionModelos",
+    "AlmacenResultados",
+    "ClasificadorBinario"
+]
