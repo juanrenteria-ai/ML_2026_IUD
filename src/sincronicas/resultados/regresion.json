@@ -1,5 +1,5 @@
 {
-  "fecha_ejecucion": "2026-10-26T09:12:48",
+  "fecha_ejecucion": "2026-10-26T09:35:52",
   "dataset": {
     "dataset": "mayacheruty/Horse-Race-Prediction-EDA",
     "config": null,
@@ -78,7 +78,7 @@
     "division": "por carrera (GroupShuffleSplit)",
     "escalado": "StandardScaler ajustado solo con entrenamiento"
   },
-  "ruta_modelo": "entrenamiento/20261026_083556_455330_modelo.pkl",
+  "ruta_modelo": "entrenamiento/20261026_093551_573212_modelo.pkl",
   "intercepto_escalado": 73.00981850248095,
   "intercepto_original": -0.33107124477861305,
   "coeficientes": [
