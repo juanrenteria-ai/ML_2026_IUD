@@ -1,0 +1,96 @@
+name: Ejecutar EA3 - Aprendizaje supervisado (Random Forest)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/sincronicas/EA3_Aprendizaje_Supervisado_NoSupervisado.ipynb"
+      - "src/clases_po/**"
+      - "requirements.txt"
+      - ".github/workflows/ejecutar-ea3.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ejecutar-ea3-main
+  cancel-in-progress: false
+
+jobs:
+  ejecutar-notebook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Crear entorno virtual
+        run: python -m venv .venv
+
+      - name: Instalar dependencias
+        run: |
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pyarrow
+
+      - name: Limpiar resultados anteriores de EA3
+        run: |
+          mkdir -p src/sincronicas/resultados_ea3
+          find src/sincronicas/resultados_ea3 -mindepth 1 -delete
+
+      - name: Ejecutar notebook EA3 (obtener dataset, preprocesar, entrenar, evaluar y generar resumen)
+        working-directory: src/sincronicas
+        run: |
+          source ../../.venv/bin/activate
+          jupyter nbconvert \
+            --to notebook \
+            --execute \
+            --inplace \
+            --ExecutePreprocessor.timeout=3000 \
+            EA3_Aprendizaje_Supervisado_NoSupervisado.ipynb
+
+      - name: Verificar que se generó el resumen
+        run: |
+          ls -lR src/sincronicas/resultados_ea3
+          test -s src/sincronicas/resultados_ea3/resumen_ea3.txt
+          test -s src/sincronicas/resultados_ea3/hallazgos_ea3.md
+          test -n "$(find src/sincronicas/resultados_ea3/graficas -name '*.png')"
+
+      - name: Publicar resumen y gráficas como artefacto descargable
+        uses: actions/upload-artifact@v4
+        with:
+          name: resumen-ea3
+          path: |
+            src/sincronicas/resultados_ea3/resumen_ea3.txt
+            src/sincronicas/resultados_ea3/hallazgos_ea3.md
+            src/sincronicas/resultados_ea3/ea3.json
+            src/sincronicas/resultados_ea3/graficas/*.png
+          if-no-files-found: error
+
+      - name: Confirmar resultados generados (copia del resumen en el repositorio)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/sincronicas/resultados_ea3 src/sincronicas/EA3_Aprendizaje_Supervisado_NoSupervisado.ipynb README.md
+
+          if git diff --cached --quiet; then
+            echo "No se generaron cambios."
+            exit 0
+          fi
+
+          git commit -m "chore: actualizar resultados EA3 [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
