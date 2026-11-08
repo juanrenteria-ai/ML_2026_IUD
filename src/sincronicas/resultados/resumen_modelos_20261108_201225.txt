@@ -2,9 +2,9 @@
 RESUMEN DE MODELOS - EA2
 ============================================================================================
 
-Reporte generado el:            2026-11-08T20:07:46
-Regresión ejecutada el:         2026-11-08T20:07:21
-Clasificación ejecutada el:     2026-11-08T20:07:46
+Reporte generado el:            2026-11-08T20:12:25
+Regresión ejecutada el:         2026-11-08T20:12:03
+Clasificación ejecutada el:     2026-11-08T20:12:24
 
 --------------------------------------------------------------------------------------------
 1. DATASET
