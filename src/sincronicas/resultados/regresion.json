@@ -1,5 +1,5 @@
 {
-  "fecha_ejecucion": "2026-11-08T20:17:46",
+  "fecha_ejecucion": "2026-11-08T20:22:08",
   "dataset": {
     "dataset": "mayacheruty/Horse-Race-Prediction-EDA",
     "config": null,
@@ -78,9 +78,9 @@
     "division": "por carrera (GroupShuffleSplit)",
     "escalado": "StandardScaler ajustado solo con entrenamiento"
   },
-  "ruta_modelo": "entrenamiento/20261108_201745_723204_modelo.pkl",
+  "ruta_modelo": "entrenamiento/20261108_202207_628846_modelo.pkl",
   "intercepto_escalado": 73.00981850248095,
-  "intercepto_original": -0.3310712447785136,
+  "intercepto_original": -0.33107124477861305,
   "coeficientes": [
     {
       "variable": "OR",
@@ -120,7 +120,7 @@
   ],
   "metricas_entrenamiento": {
     "r2": 0.7346627935732515,
-    "mae": 11.47260682238143,
+    "mae": 11.472606822381428,
     "rmse": 15.335740044056694
   },
   "metricas_prueba": {
@@ -143,21 +143,21 @@
   "residuos": {
     "objetivo_p10_entrenamiento": 37.0,
     "objetivo_p90_entrenamiento": 114.0,
-    "residuo_medio_decil_bajo": -21.73524586220885,
-    "residuo_medio_decil_alto": 9.33717193628265,
-    "media": 0.2386416454847189,
+    "residuo_medio_decil_bajo": -21.735245862208835,
+    "residuo_medio_decil_alto": 9.337171936282616,
+    "media": 0.2386416454847185,
     "desviacion": 15.110029628402742,
-    "asimetria": -1.372072397523356,
-    "curtosis_exceso": 3.4013754203599897,
+    "asimetria": -1.3720723975233566,
+    "curtosis_exceso": 3.4013754203599924,
     "pct_fuera_2_desviaciones": 4.914450189222323,
     "desv_por_cuartil": {
-      "Q1": 13.325630359583585,
+      "Q1": 13.325630359583586,
       "Q2": 13.721680295573478,
-      "Q3": 15.96717992946143,
+      "Q3": 15.967179929461432,
       "Q4": 17.085836815902958
     },
     "prediccion_min": -7.929906547876968,
-    "prediccion_max": 191.734642776253,
+    "prediccion_max": 191.73464277625305,
     "objetivo_min_entrenamiento": 1.0,
     "objetivo_max_entrenamiento": 181.0,
     "predicciones_fuera_de_rango": 7
