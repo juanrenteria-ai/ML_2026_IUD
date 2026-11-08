@@ -1,0 +1,171 @@
+====================================================================================================
+RESUMEN DE EJECUCIÓN - EA3: APRENDIZAJE SUPERVISADO (RANDOM FOREST)
+====================================================================================================
+Fecha de ejecución: 2026-11-08T22:45:48
+
+====================================================================================================
+1. PREGUNTA DE NEGOCIO
+====================================================================================================
+  Pregunta: ¿Qué factores conocidos antes de la salida determinan que un caballo termine en posición
+    de pago (podio), para que un analista de apuestas hípicas decida a qué caballos de cada carrera
+    dar prioridad en sus apuestas de colocado?
+  Quién se beneficia: Un analista o apostador de carreras de caballos que debe repartir un
+    presupuesto limitado entre los caballos de cada carrera.
+  Decisión que apoya: Elegir, antes de cada carrera, qué caballos merecen una apuesta de colocado y
+    cuáles factores (mercado, rating, peso, edad, tamaño del campo) pesan más en esa elección.
+
+====================================================================================================
+2. DATASET
+====================================================================================================
+  Identificador : mayacheruty/Horse-Race-Prediction-EDA
+  Enlace        : https://huggingface.co/datasets/mayacheruty/Horse-Race-Prediction-EDA
+  Configuración : default | split: train | archivo: data/horse_racing_cleaned.csv
+  Licencia      : MIT (según la ficha oficial de Hugging Face)
+  DataFrame     : 171.849 filas x 24 columnas
+
+====================================================================================================
+3. PREPROCESAMIENTO APLICADO
+====================================================================================================
+  operación                            | filas antes | filas después | detalle
+  -------------------------------------+-------------+---------------+-----------------------------------------
+  eliminar_duplicados                  | 171.849     | 171.849       | duplicados eliminados: 0
+  restaurar_nulos_imputados            | 171.849     | 171.849       | valores devueltos a NaN: OR=69860
+  restaurar_saddle_faltante            | 171.849     | 171.849       | saddle == 0 devuelto a NaN: 278 filas
+  seleccionar_y_convertir              | 171.849     | 171.849       | 8 de 24 columnas conservadas
+  descartar_filas_sin_datos_esenciales | 171.849     | 171.849       | nulos por columna: ninguno
+  convertir_objetivo                   | 171.849     | 171.849       | 'res_place' convertido a entero, clases [0, 1]
+  enriquecer_variables_relativas       | 171.849     | 171.849       | creadas: prob_mercado_norm, rank_mercado, weight_rel, OR_rel, OR_faltante
+  dividir_por_carrera                  | 171.849     | 171.849       | entrenamiento=137325, prueba=34524, carreras compartidas=0
+  imputar_mediana                      | 137.325     | 137.325       | nulos rellenados: entrenamiento=111844, prueba=28154
+  Comparación antes / después:
+  indicador                     | antes (original) | después (preparado)
+  ------------------------------+------------------+--------------------
+  filas                         | 171849.0         | 171849.0
+  columnas                      | 24.0             | 11.0
+  carreras                      | 17233.0          | 17233.0
+  filas duplicadas              | 0.0              | 0.0
+  OR imputados con la media     | 69860.0          | 0.0
+  saddle = 0 (sin dato)         | 278.0            | 0.0
+  nulos en las predictoras base | 0.0              | 70138.0
+  % en posición de pago         | 27.58            | 27.58
+  Escalado: No se escala: el Random Forest divide por umbrales y es invariante a la escala de las
+    variables.
+
+====================================================================================================
+4. MODELO Y CONFIGURACIÓN DEL EXPERIMENTO
+====================================================================================================
+  Tipo de aprendizaje : Supervisado - clasificación binaria
+  Algoritmo           : Random Forest (RandomForestClassifier de scikit-learn)
+  Variable objetivo   : res_place (clases: 0 = Fuera del podio, 1 = En posición de pago)
+  Variables           : decimalPrice, age, weight, runners, saddle, OR, prob_mercado_norm, rank_mercado, weight_rel, OR_rel, OR_faltante
+  Semilla aleatoria   : 42
+  División            : por carrera (GroupShuffleSplit) - entrenamiento 137.325 filas (13.786 carreras). prueba 34.524 filas (3.447 carreras). carreras compartidas = 0
+  Umbral de decisión  : 0.5
+  Hiperparámetros elegidos (validación cruzada 5 pliegues por carrera, criterio PR-AUC):
+    n_estimators=50, max_depth=8, min_samples_leaf=20
+  Otros parámetros (valores del modelo entrenado):
+    bootstrap=True, class_weight=balanced, criterion=gini, max_features=sqrt, n_jobs=-1
+
+  Evidencia de la validación cruzada (profundidad y tamaño de hoja):
+  max_depth | min_samples_leaf | PR-AUC val. | PR-AUC entren. | ROC-AUC val.
+  ----------+------------------+-------------+----------------+-------------
+  8         | 20               | 0,5540      | 0,5680         | 0,7639
+  12        | 20               | 0,5539      | 0,6060         | 0,7635
+  12        | 100              | 0,5537      | 0,5757         | 0,7636
+  8         | 100              | 0,5534      | 0,5638         | 0,7636
+  4         | 100              | 0,5438      | 0,5462         | 0,7599
+  4         | 20               | 0,5436      | 0,5460         | 0,7598
+  Evidencia de la validación cruzada (número de árboles):
+  n_estimators | PR-AUC val. | ROC-AUC val.
+  -------------+-------------+-------------
+  50           | 0,5539      | 0,7638
+  150          | 0,5540      | 0,7639
+  300          | 0,5540      | 0,7639
+
+====================================================================================================
+5. MÉTRICAS
+====================================================================================================
+  métrica              | entrenamiento | prueba
+  ---------------------+---------------+-------
+  Exactitud            | 0,687         | 0,679
+  Exactitud balanceada | 0,698         | 0,690
+  Precisión            | 0,458         | 0,449
+  Recall               | 0,721         | 0,712
+  F1                   | 0,560         | 0,551
+  ROC-AUC              | 0,771         | 0,760
+  PR-AUC               | 0,566         | 0,548
+  Referencias en prueba: exactitud de responder siempre 'fuera del podio' = 0,724; PR-AUC del azar = 0,276; ROC-AUC solo con el mercado = 0,754; PR-AUC solo con el mercado = 0,531.
+  Matriz de confusión (prueba) [filas: real; columnas: predicho 0/1]: [[16679, 8323], [2742, 6780]]
+  Top-3 por carrera (prueba. 3.440 carreras): modelo 50.0 % | favoritos del mercado 50.9 % | azar 27.6 %
+
+  Importancia de variables (permutación sobre la prueba):
+  variable          | caída PR-AUC | peso relativo % | impureza
+  ------------------+--------------+-----------------+---------
+  prob_mercado_norm | 0,0771       | 41,4            | 0,3823
+  decimalPrice      | 0,0700       | 37,6            | 0,2920
+  rank_mercado      | 0,0243       | 13,0            | 0,2473
+  runners           | 0,0138       | 7,4             | 0,0360
+  OR_rel            | 0,0009       | 0,5             | 0,0100
+  weight_rel        | 0,0002       | 0,1             | 0,0109
+  age               | 0,0000       | 0,0             | 0,0031
+  OR                | -0,0000      | 0,0             | 0,0058
+  OR_faltante       | -0,0002      | 0,0             | 0,0017
+  saddle            | -0,0002      | 0,0             | 0,0069
+  weight            | -0,0002      | 0,0             | 0,0041
+
+====================================================================================================
+6. INTERPRETACIÓN
+====================================================================================================
+  - En datos que el modelo no vio, ordena a los caballos con ROC-AUC 0,760 (0,5 sería azar) y PR-AUC
+    0,548 frente a 0,276 del azar.
+  - Con el umbral 0,50, de cada 100 caballos que marca como podio acierta 45 % (precisión) y detecta
+    71 % de los que realmente hacen podio (recall); F1 = 0,551.
+  - Matriz de confusión: 6.780 aciertos de podio. 8.323 falsas alarmas. 2.742 podios no detectados y
+    16.679 descartes correctos.
+  - Dentro de cada carrera, de los 3 caballos mejor puntuados por el modelo el 50,0 % termina en
+    podio; con los 3 favoritos del mercado es 50,9 % y al azar 27,6 %.
+  - El modelo casi no mejora al mercado solo (ROC-AUC 0,754 frente a 0,760): el precio ya resume
+    casi toda la información disponible.
+  - Entre entrenamiento y prueba la PR-AUC pasa de 0,566 a 0,548 (diferencia pequeña: no hay
+    sobreajuste importante).
+  - Variables que más pesan (por permutación): prob_mercado_norm (41,4 %), decimalPrice (37,6 %),
+    rank_mercado (13,0 %).
+
+====================================================================================================
+7. LIMITACIONES
+====================================================================================================
+  - Solo usa información previa a la carrera y disponible en el dataset (2019): no incluye estado
+    del terreno, distancia de la carrera, forma reciente del caballo ni historial del jinete o del
+    entrenador.
+  - Un 41 % de los ratings OR venía imputado con la media por el autor del dataset; se devolvieron a
+    nulo y se rellenaron con la mediana del entrenamiento, por lo que el rating es menos informativo
+    de lo que sería con datos completos.
+  - La precisión con el umbral 0,50 es 45 %: el 55 % de los caballos señalados no hace podio. Una
+    apuesta basada en el modelo sigue teniendo alto riesgo de pérdida.
+  - Las probabilidades no están perfectamente calibradas: la mayor diferencia entre lo predicho y lo
+    real por decil es de 23,3 puntos porcentuales (el modelo usa class_weight='balanced', que infla
+    las probabilidades de la clase positiva). Úsense para ordenar, no como probabilidad literal.
+  - El resultado depende de la partición de carreras elegida (semilla 42); con otra partición las
+    métricas variarían ligeramente.
+  - El modelo no considera cuotas finales de pago ni costos de apuesta: no mide rentabilidad, solo
+    qué tan bien identifica a quienes hacen podio.
+  - El desempeño cambia según el tamaño del campo; es más débil en carreras de 16+ corredores.
+
+====================================================================================================
+8. RESPUESTA A LA PREGUNTA DE NEGOCIO Y RECOMENDACIONES
+====================================================================================================
+  Respuesta: Sí es posible anticipar parcialmente qué caballos hacen podio. Los factores que más lo
+    determinan son prob_mercado_norm, decimalPrice, rank_mercado. El modelo acierta 50,0 % de los 3
+    caballos que propone por carrera (azar: 27,6 %; favoritos del mercado: 50,9 %), por lo que sirve
+    como apoyo para priorizar apuestas de colocado, pero no como garantía de acierto.
+  - Usar el modelo para ordenar a los caballos dentro de cada carrera y revisar primero a los 3
+    mejor puntuados, en lugar de decidir con un umbral fijo de probabilidad.
+  - No abandonar la regla simple de los 3 favoritos del mercado solo por este modelo: su ventaja por
+    carrera es mínima (50,0 % vs 50,9 %). Úsese como segunda opinión.
+  - Fuera del mercado, vigilar primero runners, la variable no-mercado con más peso en el modelo.
+  - Antes de arriesgar dinero real, probar el modelo con carreras de otra temporada y medir la
+    rentabilidad con cuotas reales; este análisis solo mide aciertos de podio.
+  - Mejorar los datos: completar el rating OR sin imputar y añadir terreno, distancia de la carrera
+    y forma reciente.
+
+Gráficas generadas (carpeta graficas/): 01_distribucion_clases.png, 02_antes_despues_OR.png, 03_validacion_cruzada.png, 04_matriz_confusion.png, 05_curvas_roc_pr.png, 06_importancia_variables.png, 07_calibracion.png, 08_top_k_por_carrera.png
