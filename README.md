@@ -131,7 +131,7 @@ El modelo se compara además con una referencia simple (usar solo la probabilida
 ## 8. Documento de hallazgos
 
 <!-- HALLAZGOS_EA3:INICIO -->
-_Generado automáticamente por la ejecución del 2026-11-08T22:45:48. No editar a mano: se reescribe en cada ejecución._
+_Generado automáticamente por la ejecución del 2026-11-08T23:44:13. No editar a mano: se reescribe en cada ejecución._
 
 ### Respuesta a la pregunta de negocio
 
