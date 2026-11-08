@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# EA3: el modelo entrenado se regenera en cada ejecución (no se versiona)
+src/sincronicas/entrenamiento_ea3/
