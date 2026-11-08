@@ -1,5 +1,5 @@
 {
-  "fecha_ejecucion": "2026-10-26T10:17:57",
+  "fecha_ejecucion": "2026-11-08T20:07:46",
   "dataset": {
     "dataset": "mayacheruty/Horse-Race-Prediction-EDA",
     "config": null,
@@ -105,7 +105,7 @@
     "escalado": "StandardScaler ajustado solo con entrenamiento",
     "umbral": 0.5
   },
-  "ruta_modelo": "entrenamiento/20261026_101756_581122_clasificador.pkl",
+  "ruta_modelo": "entrenamiento/20261108_200745_619092_clasificador.pkl",
   "intercepto_original": -1.132591151219379,
   "coeficientes": [
     {
