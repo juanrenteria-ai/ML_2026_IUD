@@ -1,7 +1,7 @@
 {
-  "fecha_ejecucion": "2026-11-08T20:12:25",
+  "fecha_ejecucion": "2026-11-08T20:18:10",
   "regresion": {
-    "fecha_ejecucion": "2026-11-08T20:12:03",
+    "fecha_ejecucion": "2026-11-08T20:17:46",
     "dataset": {
       "dataset": "mayacheruty/Horse-Race-Prediction-EDA",
       "config": null,
@@ -80,7 +80,7 @@
       "division": "por carrera (GroupShuffleSplit)",
       "escalado": "StandardScaler ajustado solo con entrenamiento"
     },
-    "ruta_modelo": "entrenamiento/20261108_201203_407359_modelo.pkl",
+    "ruta_modelo": "entrenamiento/20261108_201745_723204_modelo.pkl",
     "intercepto_escalado": 73.00981850248095,
     "intercepto_original": -0.3310712447785136,
     "coeficientes": [
@@ -192,7 +192,7 @@
     ]
   },
   "clasificacion": {
-    "fecha_ejecucion": "2026-11-08T20:12:24",
+    "fecha_ejecucion": "2026-11-08T20:18:10",
     "dataset": {
       "dataset": "mayacheruty/Horse-Race-Prediction-EDA",
       "config": null,
@@ -298,7 +298,7 @@
       "escalado": "StandardScaler ajustado solo con entrenamiento",
       "umbral": 0.5
     },
-    "ruta_modelo": "entrenamiento/20261108_201224_435154_clasificador.pkl",
+    "ruta_modelo": "entrenamiento/20261108_201810_040524_clasificador.pkl",
     "intercepto_original": -1.1325911512193794,
     "coeficientes": [
       {
